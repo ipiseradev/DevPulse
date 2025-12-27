@@ -34,8 +34,10 @@ router.get('/callback', async (req: Request, res: Response) => {
     
     console.log('GitHub callback received:', { code: code ? 'yes' : 'no', state });
     
+    const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+    
     if (!code) {
-      return res.redirect('http://localhost:3000/dashboard/github?error=no_code');
+      return res.redirect(`${FRONTEND_URL}/dashboard/github?error=no_code`);
     }
 
     const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
@@ -56,7 +58,7 @@ router.get('/callback', async (req: Request, res: Response) => {
 
     if (tokenData.error) {
       console.error('GitHub OAuth error:', tokenData);
-      return res.redirect('http://localhost:3000/dashboard/github?error=oauth_failed');
+      return res.redirect(`${FRONTEND_URL}/dashboard/github?error=oauth_failed`);
     }
 
     const accessToken = tokenData.access_token;
@@ -114,14 +116,15 @@ router.get('/callback', async (req: Request, res: Response) => {
       });
       console.log('GitHub token saved for user:', user.email);
 
-      res.redirect('http://localhost:3000/dashboard/github?connected=true');
+      res.redirect(`${FRONTEND_URL}/dashboard/github?connected=true`);
     } else {
       console.log('User not found in database');
-      res.redirect('http://localhost:3000/dashboard/github?error=user_not_found');
+      res.redirect(`${FRONTEND_URL}/dashboard/github?error=user_not_found`);
     }
   } catch (error) {
     console.error('Error en callback de GitHub:', error);
-    res.redirect('http://localhost:3000/dashboard/github?error=server_error');
+    const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+    res.redirect(`${FRONTEND_URL}/dashboard/github?error=server_error`);
   }
 });
 
