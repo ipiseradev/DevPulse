@@ -1,0 +1,185 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== MODELOS ====================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  name          String
+  avatar        String?
+  githubToken   String?
+  githubUsername String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relaciones
+  clients       Client[]
+  projects      Project[]
+  githubStats   GitHubStats?
+
+  @@map("users")
+}
+
+model Client {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  company   String?
+  address   String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projects  Project[]
+  invoices  Invoice[]
+
+  @@map("clients")
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  name        String
+  description String?
+  status      ProjectStatus @default(PENDING)
+  budget      Float?
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Relaciones
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clientId    String?
+  client      Client?   @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  tasks       Task[]
+  invoices    Invoice[]
+
+  @@map("projects")
+}
+
+model Task {
+  id          String     @id @default(cuid())
+  title       String
+  description String?
+  status      TaskStatus @default(TODO)
+  priority    Priority   @default(MEDIUM)
+  hours       Float      @default(0)
+  dueDate     DateTime?
+  completedAt DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Relaciones
+  projectId   String
+  project     Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("tasks")
+}
+
+model Invoice {
+  id          String        @id @default(cuid())
+  number      String        @unique
+  amount      Float
+  tax         Float         @default(0)
+  total       Float
+  status      InvoiceStatus @default(DRAFT)
+  issueDate   DateTime      @default(now())
+  dueDate     DateTime
+  paidDate    DateTime?
+  notes       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Relaciones
+  clientId    String
+  client      Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  projectId   String?
+  project     Project?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  // Items de la factura
+  items       InvoiceItem[]
+
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id          String   @id @default(cuid())
+  description String
+  quantity    Float
+  unitPrice   Float
+  total       Float
+  createdAt   DateTime @default(now())
+
+  // Relaciones
+  invoiceId   String
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@map("invoice_items")
+}
+
+model GitHubStats {
+  id              String   @id @default(cuid())
+  totalCommits    Int      @default(0)
+  totalRepos      Int      @default(0)
+  totalPRs        Int      @default(0)
+  totalIssues     Int      @default(0)
+  contributionData Json?   // Data para el gráfico de contribuciones
+  lastSyncAt      DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relaciones
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("github_stats")
+}
+
+// ==================== ENUMS ====================
+
+enum ProjectStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  ON_HOLD
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  IN_REVIEW
+  COMPLETED
+  CANCELLED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+  CANCELLED
+}
