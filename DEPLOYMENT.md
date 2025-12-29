@@ -291,7 +291,7 @@ FRONTEND_URL=https://tu-app.vercel.app
 NEXT_PUBLIC_API_URL=https://tu-backend.railway.app/api
 ```
 
----
+---![![alt text](image-1.png)](image.png)
 
 ### ❌ Error de Build en Vercel
 
