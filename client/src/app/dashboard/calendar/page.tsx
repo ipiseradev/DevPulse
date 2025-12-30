@@ -105,6 +105,7 @@ export default function CalendarPage() {
         projectsAPI.getAll(),
         tasksAPI.getAll(),
       ]);
+      
 
       const calendarEvents: CalendarEvent[] = [];
 
