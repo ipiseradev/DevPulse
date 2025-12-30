@@ -196,7 +196,8 @@ export default function GitHubPage() {
 
   const handleConnect = () => {
     const clientId = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID;
-    const redirectUri = 'http://localhost:3001/api/github/callback';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:3001';
+    const redirectUri = `${apiUrl}/api/github/callback`;
     const userId = user?.id || '';
     
     const githubUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=read:user,repo,user:email&state=${userId}`;
