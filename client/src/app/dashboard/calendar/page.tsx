@@ -102,8 +102,8 @@ export default function CalendarPage() {
   const fetchEvents = async () => {
     try {
       const [projectsRes, tasksRes] = await Promise.all([
-        projectsAPI.getAll({ limit: 100 }),
-        tasksAPI.getAll({ limit: 100 }),
+        projectsAPI.getAll(),
+        tasksAPI.getAll(),
       ]);
 
       const calendarEvents: CalendarEvent[] = [];
