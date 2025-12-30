@@ -48,6 +48,10 @@ const statusConfig = {
   ON_HOLD: { label: 'Pausado', color: 'text-zinc-400', bg: 'bg-zinc-400/10', border: 'border-zinc-400/20' }
 };
 
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+};
+
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
@@ -87,7 +91,7 @@ export default function ProjectsPage() {
 
   const fetchClients = async () => {
     try {
-      const { data } = await clientsAPI.getAll({ limit: 100 });
+      const { data } = await clientsAPI.getAll();
       setClients(data.clients || []);
     } catch (error) {
       console.error('Error al cargar clientes:', error);
